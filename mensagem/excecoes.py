@@ -1,0 +1,2 @@
+class TipoMensagemInvalida(Exception):
+    pass
