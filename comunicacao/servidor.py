@@ -1,8 +1,10 @@
 import socket
 import sys
+import json
 from select import select
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 from const import TAMANHO_MAX_MSG
+# from mensagem.modelo import Mensagem
 
 if len(sys.argv) != 3:
     print("uso correto: python comunicacao/servidor.py <endereço ip> <numero da porta>")
@@ -33,16 +35,15 @@ class Servidor:
 
     def receber_mensagem_cliente(self, conexao_cliente):
         try:
-
             mensagem = conexao_cliente.recv(TAMANHO_MAX_MSG)
             if not len(mensagem):
-                return False
-            tamanho = int(mensagem.decode("utf-8").strip())
+                return None
 
-            return {"header": mensagem, "data": conexao_cliente.recv(tamanho)}
+            print(mensagem)
+            return json.loads(mensagem.decode("utf-8").replace("'", '"'))
         except Exception as error:
             print(f"erro na leitura dos dados do cliente => {error}")
-            return False
+            return None
 
     def escutar_conexoes(self):
         while True:
@@ -57,44 +58,35 @@ class Servidor:
                 if conexao == self.socket_servidor:
                     novo_cliente, infos_conexao = self.socket_servidor.accept()
 
-                    user = self.receber_mensagem_cliente(novo_cliente)
-                    if user is False:
+                    mensagem = self.receber_mensagem_cliente(novo_cliente)
+                    if mensagem is None:
                         continue
 
                     self.lista_conexoes.append(novo_cliente)
-                    self.clientes_conectados[novo_cliente] = user
+                    self.clientes_conectados[novo_cliente] = novo_cliente
 
                     print(
                         "Nova conexão aceita {}:{}, username: {}".format(
-                            *infos_conexao, user["data"].decode("utf-8")
+                            *infos_conexao, mensagem.get("remetente")
                         )
                     )
 
                 else:
                     mensagem = self.receber_mensagem_cliente(conexao)
-                    if mensagem is False:
+                    if mensagem is None:
                         print(
-                            "Fechando conexão de {}".format(
-                                self.clientes_conectados[conexao]["data"].decode("utf-8")
-                            )
+                            "Fechando conexão de {}".format(conexao)
                         )
                         self.remover_conexao(conexao)
                         continue
 
-                    user = self.clientes_conectados[conexao]
-
                     print(
-                        f'Recebendo mensagem de {user["data"].decode("utf-8")}: {mensagem["data"].decode("utf-8")}'
+                        'Recebendo mensagem de {}: {}'.format(mensagem.get("remetente"), mensagem.get("conteudo"))
                     )
 
                     for cliente in self.clientes_conectados:
                         if cliente != conexao:
-                            cliente.send(
-                                user["header"]
-                                + user["data"]
-                                + mensagem["header"]
-                                + mensagem["data"]
-                            )
+                            cliente.send(json.dumps(mensagem).encode("utf-8"))
 
             for conexao in sockets_excecoes:
                 self.remover_conexao(conexao)
@@ -102,9 +94,6 @@ class Servidor:
     def remover_conexao(self, conexao):
         self.lista_conexoes.remove(conexao)
         del self.clientes_conectados[conexao]
-
-    def fechar_conexao_servidor(self):
-        pass
 
 
 servidor = Servidor(ENDERECO_IP, PORTA)
