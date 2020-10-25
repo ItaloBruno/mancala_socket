@@ -1,9 +1,9 @@
 """
-    link: https://humberto.io/pt-br/blog/desbravando-o-pygame-1-conhecendo-a-biblioteca/
+    link usado como base: https://humberto.io/pt-br/blog/desbravando-o-pygame-1-conhecendo-a-biblioteca/
 """
 
-import time
 import pygame
+from typing import Tuple
 from constantes import (
     LARGURA_TELA,
     COMPRIMENTO_TELA,
@@ -15,91 +15,105 @@ from constantes import (
     VERMELHO,
 )
 
-# inicializa todos os módulos que necessitam de inicialização dentro do pygame.
-pygame.init()
 
-# definição do tamanho da tela
-tela = pygame.display.set_mode([LARGURA_TELA, COMPRIMENTO_TELA])
+class ElementoTela:
+    def __init__(self, coordenada_x: int, coordenada_y: int, cor: Tuple[int]):
+        self.coordenada_x = coordenada_x
+        self.coordenada_y = coordenada_y
+        self.cor = cor
 
-# Título da tela
-pygame.display.set_caption("Mancala - Jogador 1")
-
-fonte = pygame.font.SysFont(None, 55)
-texto_casa = fonte.render("4", True, VERMELHO)
-texto_kallah = fonte.render("0", True, VERMELHO)
-
-# preenche com a cor definida em rgb
-tela.fill(COR_PLANO_DE_FUNDO)
-
-# Minhas casas
-pygame.draw.rect(
-    tela, COR_MINHAS_CASAS, [50, 100, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH]
-)
-pygame.draw.rect(
-    tela, COR_MINHAS_CASAS, [150, 100, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA]
-)
-pygame.draw.rect(
-    tela, COR_MINHAS_CASAS, [250, 100, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA]
-)
-pygame.draw.rect(
-    tela, COR_MINHAS_CASAS, [350, 100, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA]
-)
-pygame.draw.rect(
-    tela, COR_MINHAS_CASAS, [450, 100, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA]
-)
-pygame.draw.rect(
-    tela, COR_MINHAS_CASAS, [550, 100, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA]
-)
-pygame.draw.rect(
-    tela, COR_MINHAS_CASAS, [650, 100, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA]
-)
-
-tela.blit(texto_kallah, [50 + (TAMANHO_LADO_CASA / 2.5), 175])
-tela.blit(texto_casa, [150 + (TAMANHO_LADO_CASA / 2.5), 120])
-tela.blit(texto_casa, [250 + (TAMANHO_LADO_CASA / 2.5), 120])
-tela.blit(texto_casa, [350 + (TAMANHO_LADO_CASA / 2.5), 120])
-tela.blit(texto_casa, [450 + (TAMANHO_LADO_CASA / 2.5), 120])
-tela.blit(texto_casa, [550 + (TAMANHO_LADO_CASA / 2.5), 120])
-tela.blit(texto_casa, [650 + (TAMANHO_LADO_CASA / 2.5), 120])
+    def desenhar_elemento(self, tela):
+        pass
 
 
-# Casas do adversário
-pygame.draw.rect(
-    tela, COR_CASAS_ADVERSARIO, [750, 100, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH]
-)
-pygame.draw.rect(
-    tela, COR_CASAS_ADVERSARIO, [150, 200, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA]
-)
-pygame.draw.rect(
-    tela, COR_CASAS_ADVERSARIO, [250, 200, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA]
-)
-pygame.draw.rect(
-    tela, COR_CASAS_ADVERSARIO, [350, 200, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA]
-)
-pygame.draw.rect(
-    tela, COR_CASAS_ADVERSARIO, [450, 200, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA]
-)
-pygame.draw.rect(
-    tela, COR_CASAS_ADVERSARIO, [550, 200, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA]
-)
-pygame.draw.rect(
-    tela, COR_CASAS_ADVERSARIO, [650, 200, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA]
-)
-pygame.draw.rect(
-    tela, COR_CASAS_ADVERSARIO, [650, 200, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA]
-)
+class Texto(ElementoTela):
+    def __init__(self, coordenada_x: int, coordenada_y: int, cor: Tuple[int], valor_texto: str):
+        self.fonte = pygame.font.SysFont(None, 55)
+        self.valor_texto = valor_texto
+        super().__init__(coordenada_x, coordenada_y, cor)
 
-tela.blit(texto_kallah, [750 + (TAMANHO_LADO_CASA / 2.5), 175])
-tela.blit(texto_casa, [150 + (TAMANHO_LADO_CASA / 2.5), 220])
-tela.blit(texto_casa, [250 + (TAMANHO_LADO_CASA / 2.5), 220])
-tela.blit(texto_casa, [350 + (TAMANHO_LADO_CASA / 2.5), 220])
-tela.blit(texto_casa, [450 + (TAMANHO_LADO_CASA / 2.5), 220])
-tela.blit(texto_casa, [550 + (TAMANHO_LADO_CASA / 2.5), 220])
-tela.blit(texto_casa, [650 + (TAMANHO_LADO_CASA / 2.5), 220])
+    def desenhar_elemento(self, tela):
+        texto = self.fonte.render(self.valor_texto, True, VERMELHO)
+        tela.blit(texto, [self.coordenada_x, self.coordenada_y])
 
-# O flip atualiza a tela com o conteúdo desenhado na superfície screen
-# e mostra o conteúdo definido anteriormente na tela
-# while True:
-pygame.display.flip()
 
-time.sleep(2)
+class Poligono(ElementoTela):
+    def __init__(self, coordenada_x: int, coordenada_y: int, cor: Tuple[int], largura: int, comprimento: int, numero_de_pecas_inicial: int):
+        self.largura = largura
+        self.comprimento = comprimento
+        self.numero_de_pecas = numero_de_pecas_inicial
+        self.fonte_texto = Texto(int(coordenada_x + (largura/2.5)), int(coordenada_y + (comprimento/3)), VERMELHO, str(self.numero_de_pecas))
+        super().__init__(coordenada_x, coordenada_y, cor)
+
+    def desenhar_quantidade_pecas(self, tela):
+        self.fonte_texto.desenhar_elemento(tela)
+
+    def desenhar_elemento(self, tela):
+        pygame.draw.rect(
+            tela, self.cor, [self.coordenada_x, self.coordenada_y, self.largura, self.comprimento]
+        )
+        self.desenhar_quantidade_pecas(tela)
+
+
+class Casa(Poligono):
+    def __init__(self, coordenada_x: int, coordenada_y: int, cor: Tuple[int], largura: int, comprimento: int):
+        super().__init__(coordenada_x, coordenada_y, cor, largura, comprimento, 4)
+
+
+class Kallah(Poligono):
+    def __init__(self, coordenada_x: int, coordenada_y: int, cor: Tuple[int], largura: int, comprimento: int):
+        super().__init__(coordenada_x, coordenada_y, cor, largura, comprimento, 0)
+
+
+class TelaDoJogo:
+    def __init__(self, nome_jogador: str):
+        self.nome_mostrado_no_display = f"Mancala - {nome_jogador}"
+        self.elementos_da_tela = []
+        self.tela = None
+
+    def iniciar_tela_do_jogador(self):
+        pygame.init()
+        self.tela = pygame.display.set_mode([LARGURA_TELA, COMPRIMENTO_TELA])
+        pygame.display.set_caption(self.nome_mostrado_no_display)
+        self.tela.fill(COR_PLANO_DE_FUNDO)
+
+    def desenhar_elementos_na_tela(self):
+        for elemento in self.elementos_da_tela:
+            elemento.desenhar_elemento(self.tela)
+
+    def adicionar_elemento_na_tela(self, elemento):
+        self.elementos_da_tela.append(elemento)
+
+    def desenhar_casas_do_tabuleiro(self, coordenada_x_inicial, coordenada_y_inicial, cor):
+        while coordenada_x_inicial < 750:
+            casa = Casa(coordenada_x_inicial, coordenada_y_inicial, cor, TAMANHO_LADO_CASA, TAMANHO_LADO_CASA)
+            self.adicionar_elemento_na_tela(casa)
+            coordenada_x_inicial += 100
+
+    def desenhar_kallah(self, x, y, cor, largura, comprimento):
+        kallah = Kallah(x, y, cor, largura, comprimento)
+        tela_do_jogador.adicionar_elemento_na_tela(kallah)
+
+    def desenhar_tabuleiro(self):
+        self.desenhar_casas_do_tabuleiro(coordenada_x_inicial=150, coordenada_y_inicial=100,
+                                                    cor=COR_MINHAS_CASAS)
+        self.desenhar_casas_do_tabuleiro(coordenada_x_inicial=150, coordenada_y_inicial=200,
+                                                    cor=COR_CASAS_ADVERSARIO)
+
+        # desenhando minha kallah
+        self.desenhar_kallah(50, 100, COR_MINHAS_CASAS, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH)
+        # desenhando kallah do oponente
+        self.desenhar_kallah(750, 100, COR_MINHAS_CASAS, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH)
+        self.desenhar_elementos_na_tela()
+
+    @staticmethod
+    def mostrar_tela_do_jogador():
+        pygame.display.flip()
+
+
+tela_do_jogador = TelaDoJogo("italo")
+tela_do_jogador.iniciar_tela_do_jogador()
+
+while True:
+    tela_do_jogador.desenhar_tabuleiro()
+    tela_do_jogador.mostrar_tela_do_jogador()
