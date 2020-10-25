@@ -51,7 +51,9 @@ class Mensagem:
         if tipo_mensagem in self._tipos_permitidos:
             return True
 
-        raise TipoMensagemInvalida(f"Esse tipo de mensagem é inválida. Tipos permitidos: {self._tipos_permitidos}")
+        raise TipoMensagemInvalida(
+            f"Esse tipo de mensagem é inválida. Tipos permitidos: {self._tipos_permitidos}"
+        )
 
     def converter_bytes_para_json_e_setar_valores_da_classe(self, json_em_bytes: bytes):
         json_em_texto = json_em_bytes.decode(CODIFICACAO)
@@ -63,5 +65,9 @@ class Mensagem:
         self._remetente = resultado.get("remetente")
 
     def converter_msg_em_bytes_para_enviar(self):
-        msg = {"tipo": self._tipo, "conteudo": self._conteudo, "remetente": self.remetente}
+        msg = {
+            "tipo": self._tipo,
+            "conteudo": self._conteudo,
+            "remetente": self.remetente,
+        }
         return str(msg).encode(CODIFICACAO)

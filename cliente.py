@@ -26,7 +26,9 @@ class Cliente:
         self.conexao.connect((self.endereco_ip, self.porta))
         self.conexao.setblocking(False)
 
-        mensagem_inicial = Mensagem(tipo="chat", conteudo=self.nome, remetente=self.nome)
+        mensagem_inicial = Mensagem(
+            tipo="chat", conteudo=self.nome, remetente=self.nome
+        )
         mensagem_em_bytes = mensagem_inicial.converter_msg_em_bytes_para_enviar()
         self.conexao.send(mensagem_em_bytes)
 
@@ -40,12 +42,20 @@ class Cliente:
 
             if mensagem_para_enviar:
                 if mensagem_para_enviar in ["sair do jogo", "desconectar"]:
-                    mensagem_desistencia = Mensagem(tipo="desistencia", conteudo="Você ganhou a partida", remetente=self.nome)
-                    mensagem_em_bytes = mensagem_desistencia.converter_msg_em_bytes_para_enviar()
+                    mensagem_desistencia = Mensagem(
+                        tipo="desistencia",
+                        conteudo="Você ganhou a partida",
+                        remetente=self.nome,
+                    )
+                    mensagem_em_bytes = (
+                        mensagem_desistencia.converter_msg_em_bytes_para_enviar()
+                    )
                     self.conexao.send(mensagem_em_bytes)
                     self.encerrar_conexao_servidor()
                 else:
-                    mensagem = Mensagem(tipo="chat", conteudo=mensagem_para_enviar, remetente=self.nome)
+                    mensagem = Mensagem(
+                        tipo="chat", conteudo=mensagem_para_enviar, remetente=self.nome
+                    )
                     mensagem_em_bytes = mensagem.converter_msg_em_bytes_para_enviar()
                     self.conexao.send(mensagem_em_bytes)
 
@@ -59,13 +69,18 @@ class Cliente:
                     self.encerrar_conexao_servidor()
 
                 mensagem = Mensagem(tipo="chat", conteudo="", remetente=self.nome)
-                mensagem.converter_bytes_para_json_e_setar_valores_da_classe(json_em_bytes=mensagem_recebida_do_servidor)
+                mensagem.converter_bytes_para_json_e_setar_valores_da_classe(
+                    json_em_bytes=mensagem_recebida_do_servidor
+                )
 
                 if mensagem.tipo == TipoPermitidosDeMensagem.desistencia:
                     print("Eu venci a partida, ieeeeeeei")
                     self.encerrar_conexao_servidor()
                 else:
-                    print(f"\n{mensagem.remetente} > {mensagem.conteudo}\n{self.nome} > ", end="")
+                    print(
+                        f"\n{mensagem.remetente} > {mensagem.conteudo}\n{self.nome} > ",
+                        end="",
+                    )
 
             except IOError as e:
                 if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
@@ -90,5 +105,7 @@ cliente.iniciar_conexao_com_servidor()
 
 thread_recebimento_de_mensagens = Thread(target=cliente.receber_mensagens_do_servidor)
 thread_recebimento_de_mensagens.start()
-thread_envio_de_mensagens_ao_servidor = Thread(target=cliente.enviar_mensagem_para_o_servidor)
+thread_envio_de_mensagens_ao_servidor = Thread(
+    target=cliente.enviar_mensagem_para_o_servidor
+)
 thread_envio_de_mensagens_ao_servidor.start()

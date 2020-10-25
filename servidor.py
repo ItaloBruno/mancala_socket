@@ -74,19 +74,22 @@ class Servidor:
                 else:
                     mensagem_recebida = self.receber_mensagem_cliente(conexao)
                     if mensagem_recebida is None:
-                        print(
-                            "Fechando conexão de {}".format(conexao)
-                        )
+                        print("Fechando conexão de {}".format(conexao))
                         self.remover_conexao(conexao)
                         continue
 
                     print(
-                        'Recebendo mensagem de {}: {}'.format(mensagem_recebida.get("remetente"), mensagem_recebida.get("conteudo"))
+                        "Recebendo mensagem de {}: {}".format(
+                            mensagem_recebida.get("remetente"),
+                            mensagem_recebida.get("conteudo"),
+                        )
                     )
 
                     for cliente in self.clientes_conectados:
                         if cliente != conexao:
-                            cliente.send(json.dumps(mensagem_recebida).encode(CODIFICACAO))
+                            cliente.send(
+                                json.dumps(mensagem_recebida).encode(CODIFICACAO)
+                            )
 
             for conexao in sockets_excecoes:
                 self.remover_conexao(conexao)
