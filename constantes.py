@@ -1,1 +1,2 @@
 TAMANHO_MAX_MSG: int = 4096
+CODIFICACAO = "utf-8"

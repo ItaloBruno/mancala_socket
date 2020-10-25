@@ -1,11 +1,25 @@
-from excecoes import TipoMensagemInvalida
-from typing import List
 import json
+from typing import List
+from constantes import CODIFICACAO
+from excecoes import TipoMensagemInvalida
+from enum import Enum, unique
+
+
+@unique
+class TipoPermitidosDeMensagem(Enum):
+    movimentacao = "movimentacao"
+    desistencia = "desistencia"
+    chat = "chat"
+    vencedor = "vencedor"
+
+    @staticmethod
+    def list():
+        return list(map(lambda c: c.value, TipoPermitidosDeMensagem))
 
 
 class Mensagem:
     def __init__(self, tipo: str, conteudo: str, remetente: str):
-        self._tipos_permitidos: List[str] = ["movimentacao", "desistencia", "chat", "vencedor"]
+        self._tipos_permitidos: List[str] = TipoPermitidosDeMensagem.list()
         self._conteudo: str = conteudo
         self._tipo: str = tipo
         self._remetente: str = remetente
@@ -36,11 +50,13 @@ class Mensagem:
     def _eh_um_tipo_valido(self, tipo_mensagem: str):
         if tipo_mensagem in self._tipos_permitidos:
             return True
+
         raise TipoMensagemInvalida(f"Esse tipo de mensagem é inválida. Tipos permitidos: {self._tipos_permitidos}")
 
     def converter_bytes_para_json_e_setar_valores_da_classe(self, json_em_bytes: bytes):
-        json_em_texto = json_em_bytes.decode("utf-8")
+        json_em_texto = json_em_bytes.decode(CODIFICACAO)
         resultado = json.loads(json_em_texto)
+
         self._eh_um_tipo_valido(resultado.get("tipo"))
         self._conteudo = resultado.get("conteudo")
         self._tipo = resultado.get("tipo")
@@ -48,4 +64,4 @@ class Mensagem:
 
     def converter_msg_em_bytes_para_enviar(self):
         msg = {"tipo": self._tipo, "conteudo": self._conteudo, "remetente": self.remetente}
-        return str(msg).encode()
+        return str(msg).encode(CODIFICACAO)

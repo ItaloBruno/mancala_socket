@@ -3,8 +3,8 @@ import sys
 import json
 from select import select
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
-from const import TAMANHO_MAX_MSG
-# from mensagem.modelo import Mensagem
+from constantes import TAMANHO_MAX_MSG, CODIFICACAO
+
 
 if len(sys.argv) != 3:
     print("uso correto: python comunicacao/servidor.py <endereço ip> <numero da porta>")
@@ -40,7 +40,7 @@ class Servidor:
                 return None
 
             print(mensagem)
-            return json.loads(mensagem.decode("utf-8").replace("'", '"'))
+            return json.loads(mensagem.decode(CODIFICACAO).replace("'", '"'))
         except Exception as error:
             print(f"erro na leitura dos dados do cliente => {error}")
             return None
@@ -72,8 +72,8 @@ class Servidor:
                     )
 
                 else:
-                    mensagem = self.receber_mensagem_cliente(conexao)
-                    if mensagem is None:
+                    mensagem_recebida = self.receber_mensagem_cliente(conexao)
+                    if mensagem_recebida is None:
                         print(
                             "Fechando conexão de {}".format(conexao)
                         )
@@ -81,12 +81,12 @@ class Servidor:
                         continue
 
                     print(
-                        'Recebendo mensagem de {}: {}'.format(mensagem.get("remetente"), mensagem.get("conteudo"))
+                        'Recebendo mensagem de {}: {}'.format(mensagem_recebida.get("remetente"), mensagem_recebida.get("conteudo"))
                     )
 
                     for cliente in self.clientes_conectados:
                         if cliente != conexao:
-                            cliente.send(json.dumps(mensagem).encode("utf-8"))
+                            cliente.send(json.dumps(mensagem_recebida).encode(CODIFICACAO))
 
             for conexao in sockets_excecoes:
                 self.remover_conexao(conexao)

@@ -2,13 +2,8 @@ import socket
 import errno
 import sys
 from threading import Thread
-from pprint import pprint
-sys.path.append('/home/gandalf/Área de Trabalho/faculdade/ppd/mancala_socket/mensagem')
-sys.path.append('/home/gandalf/Área de Trabalho/faculdade/ppd/mancala_socket/comunicacao')
-# pprint(sys.path)
-
-from comunicacao.const import TAMANHO_MAX_MSG
-from mensagem.mensagem import Mensagem
+from constantes import TAMANHO_MAX_MSG
+from mensagem import Mensagem, TipoPermitidosDeMensagem
 
 
 if len(sys.argv) != 3:
@@ -37,16 +32,22 @@ class Cliente:
 
     def enviar_mensagem_para_o_servidor(self):
         while True:
+            mensagem_para_enviar = ""
             try:
                 mensagem_para_enviar = input(f"{self.nome} > ")
             except KeyboardInterrupt:
-                self.conexao.close()
-                sys.exit("\nChat encerrado!")
+                self.encerrar_conexao_servidor()
 
             if mensagem_para_enviar:
-                mensagem = Mensagem(tipo="chat", conteudo=mensagem_para_enviar, remetente=self.nome)
-                mensagem_em_bytes = mensagem.converter_msg_em_bytes_para_enviar()
-                self.conexao.send(mensagem_em_bytes)
+                if mensagem_para_enviar in ["sair do jogo", "desconectar"]:
+                    mensagem_desistencia = Mensagem(tipo="desistencia", conteudo="Você ganhou a partida", remetente=self.nome)
+                    mensagem_em_bytes = mensagem_desistencia.converter_msg_em_bytes_para_enviar()
+                    self.conexao.send(mensagem_em_bytes)
+                    self.encerrar_conexao_servidor()
+                else:
+                    mensagem = Mensagem(tipo="chat", conteudo=mensagem_para_enviar, remetente=self.nome)
+                    mensagem_em_bytes = mensagem.converter_msg_em_bytes_para_enviar()
+                    self.conexao.send(mensagem_em_bytes)
 
     def receber_mensagens_do_servidor(self):
         while True:
@@ -54,13 +55,17 @@ class Cliente:
                 mensagem_recebida_do_servidor = self.conexao.recv(TAMANHO_MAX_MSG)
 
                 if not len(mensagem_recebida_do_servidor):
-                    print("Connection closed by the server")
-                    sys.exit()
+                    print("Conexão fechada pelo servidor!")
+                    self.encerrar_conexao_servidor()
 
                 mensagem = Mensagem(tipo="chat", conteudo="", remetente=self.nome)
                 mensagem.converter_bytes_para_json_e_setar_valores_da_classe(json_em_bytes=mensagem_recebida_do_servidor)
 
-                print(f"\n{mensagem.remetente} > {mensagem.conteudo}\n{self.nome} > ", end="")
+                if mensagem.tipo == TipoPermitidosDeMensagem.desistencia:
+                    print("Eu venci a partida, ieeeeeeei")
+                    self.encerrar_conexao_servidor()
+                else:
+                    print(f"\n{mensagem.remetente} > {mensagem.conteudo}\n{self.nome} > ", end="")
 
             except IOError as e:
                 if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
@@ -73,8 +78,13 @@ class Cliente:
                 print("Reading error: ".format(str(e)))
                 sys.exit()
 
+    def encerrar_conexao_servidor(self):
+        self.conexao.close()
+        sys.exit("\nChat encerrado!")
+
 
 meu_nome_usuario = input("Digite seu nome de usuário: ")
+print("INFO: Para desistir da partida, digite 'sair do jogo' ou 'desconectar'")
 cliente = Cliente(nome=meu_nome_usuario, porta=PORTA, endereco_ip=ENDERECO_IP)
 cliente.iniciar_conexao_com_servidor()
 
