@@ -48,6 +48,7 @@ class Poligono(ElementoTela):
         largura: int,
         comprimento: int,
         numero_de_pecas_inicial: int,
+        nome_jogador: str = "",
     ):
         self.largura = largura
         self.comprimento = comprimento
@@ -58,6 +59,7 @@ class Poligono(ElementoTela):
             VERMELHO,
             str(self.numero_de_pecas),
         )
+        self.nome_jogador = nome_jogador
         super().__init__(coordenada_x, coordenada_y, cor)
 
     def desenhar_quantidade_pecas(self, tela):
@@ -80,8 +82,22 @@ class Casa(Poligono):
         cor: Tuple[int],
         largura: int,
         comprimento: int,
+        nome_jogador: str,
     ):
-        super().__init__(coordenada_x, coordenada_y, cor, largura, comprimento, 4)
+        self.elemento_react = None
+        super().__init__(
+            coordenada_x, coordenada_y, cor, largura, comprimento, 4, nome_jogador
+        )
+
+    # def adicionar_elemento_react(self, tela):
+    #     pygame.draw.rect(
+    #         tela,
+    #         self.cor,
+    #         (
+    #             self.coordenada_x + int(self.coordenada_x / 2),
+    #             self.coordenada_y + int(self.coordenada_y / 2),
+    #         ),
+    #     )
 
 
 class Kallah(Poligono):
@@ -92,13 +108,17 @@ class Kallah(Poligono):
         cor: Tuple[int],
         largura: int,
         comprimento: int,
+        nome_jogador: str = "",
     ):
-        super().__init__(coordenada_x, coordenada_y, cor, largura, comprimento, 0)
+        super().__init__(
+            coordenada_x, coordenada_y, cor, largura, comprimento, 0, nome_jogador
+        )
 
 
 class TelaDoJogo:
     def __init__(self, nome_jogador: str):
         self.nome_mostrado_no_display = f"Mancala - {nome_jogador}"
+        self.nome_jogador = nome_jogador
         self.elementos_da_tela = []
         self.tela = None
 
@@ -115,7 +135,22 @@ class TelaDoJogo:
     def adicionar_elemento_na_tela(self, elemento):
         self.elementos_da_tela.append(elemento)
 
-    def desenhar_casas_do_tabuleiro(
+    def desenhar_casas_do_tabuleiro_adversario(
+        self, coordenada_x_inicial, coordenada_y_inicial, cor
+    ):
+        while coordenada_x_inicial >= 150:
+            casa = Casa(
+                coordenada_x_inicial,
+                coordenada_y_inicial,
+                cor,
+                TAMANHO_LADO_CASA,
+                TAMANHO_LADO_CASA,
+                "",
+            )
+            self.adicionar_elemento_na_tela(casa)
+            coordenada_x_inicial -= 100
+
+    def desenhar_minhas_casas_do_tabuleiro(
         self, coordenada_x_inicial, coordenada_y_inicial, cor
     ):
         while coordenada_x_inicial < 750:
@@ -125,40 +160,35 @@ class TelaDoJogo:
                 cor,
                 TAMANHO_LADO_CASA,
                 TAMANHO_LADO_CASA,
+                self.nome_jogador,
             )
             self.adicionar_elemento_na_tela(casa)
             coordenada_x_inicial += 100
 
     def desenhar_kallah(self, x, y, cor, largura, comprimento):
         kallah = Kallah(x, y, cor, largura, comprimento)
-        tela_do_jogador.adicionar_elemento_na_tela(kallah)
+        self.adicionar_elemento_na_tela(kallah)
 
     def desenhar_tabuleiro(self):
-        self.desenhar_casas_do_tabuleiro(
-            coordenada_x_inicial=150, coordenada_y_inicial=100, cor=COR_MINHAS_CASAS
+        # Fiz nessa ordem para que eu tenha todos os elementos na ordem anti-horária
+        # desenhando minhas casas
+        self.desenhar_minhas_casas_do_tabuleiro(
+            coordenada_x_inicial=150, coordenada_y_inicial=200, cor=COR_MINHAS_CASAS
         )
-        self.desenhar_casas_do_tabuleiro(
-            coordenada_x_inicial=150, coordenada_y_inicial=200, cor=COR_CASAS_ADVERSARIO
-        )
-
         # desenhando minha kallah
         self.desenhar_kallah(
-            50, 100, COR_MINHAS_CASAS, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH
+            750, 100, COR_MINHAS_CASAS, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH
+        )
+        # desenhando casas do adversário
+        self.desenhar_casas_do_tabuleiro_adversario(
+            coordenada_x_inicial=650, coordenada_y_inicial=100, cor=COR_CASAS_ADVERSARIO
         )
         # desenhando kallah do oponente
         self.desenhar_kallah(
-            750, 100, COR_MINHAS_CASAS, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH
+            50, 100, COR_CASAS_ADVERSARIO, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH
         )
         self.desenhar_elementos_na_tela()
 
     @staticmethod
     def mostrar_tela_do_jogador():
         pygame.display.flip()
-
-
-tela_do_jogador = TelaDoJogo("italo")
-tela_do_jogador.iniciar_tela_do_jogador()
-
-while True:
-    tela_do_jogador.desenhar_tabuleiro()
-    tela_do_jogador.mostrar_tela_do_jogador()

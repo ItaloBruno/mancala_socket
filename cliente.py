@@ -4,6 +4,7 @@ import sys
 from threading import Thread
 from constantes import TAMANHO_MAX_MSG
 from mensagem import Mensagem, TipoPermitidosDeMensagem
+from interface_grafica import TelaDoJogo
 
 
 if len(sys.argv) != 3:
@@ -52,6 +53,7 @@ class Cliente:
                     )
                     self.conexao.send(mensagem_em_bytes)
                     self.encerrar_conexao_servidor()
+                    break
                 else:
                     mensagem = Mensagem(
                         tipo="chat", conteudo=mensagem_para_enviar, remetente=self.nome
@@ -109,3 +111,15 @@ thread_envio_de_mensagens_ao_servidor = Thread(
     target=cliente.enviar_mensagem_para_o_servidor
 )
 thread_envio_de_mensagens_ao_servidor.start()
+
+tela_do_jogador = TelaDoJogo(meu_nome_usuario)
+tela_do_jogador.iniciar_tela_do_jogador()
+tela_do_jogador.desenhar_tabuleiro()
+
+while True:
+    try:
+        tela_do_jogador.desenhar_elementos_na_tela()
+        tela_do_jogador.mostrar_tela_do_jogador()
+    except KeyboardInterrupt:
+        cliente.encerrar_conexao_servidor()
+        break
