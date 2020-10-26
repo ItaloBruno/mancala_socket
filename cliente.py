@@ -5,7 +5,7 @@ from threading import Thread
 from constantes import TAMANHO_MAX_MSG
 from mensagem import Mensagem, TipoPermitidosDeMensagem
 from interface_grafica import TelaDoJogo
-
+import pygame
 
 if len(sys.argv) != 3:
     print("uso correto: python comunicacao/cliente.py <endereço ip> <numero da porta>")
@@ -116,7 +116,20 @@ tela_do_jogador = TelaDoJogo(meu_nome_usuario)
 tela_do_jogador.iniciar_tela_do_jogador()
 tela_do_jogador.desenhar_tabuleiro()
 
-while True:
+mostrar_tela_jogo = True
+while mostrar_tela_jogo:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            mostrar_tela_jogo = False
+
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        if pygame.mouse.get_pressed()[0]:
+            resultado = tela_do_jogador.clicou_em_alguma_casa(
+                pygame.mouse.get_pos()
+            )
+            print(f"resultado: {resultado}, coordenadas: {pygame.mouse.get_pos()}")
+            tela_do_jogador.desenhar_elementos_na_tela()
+            tela_do_jogador.mostrar_tela_do_jogador()
     try:
         tela_do_jogador.desenhar_elementos_na_tela()
         tela_do_jogador.mostrar_tela_do_jogador()

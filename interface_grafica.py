@@ -89,15 +89,20 @@ class Casa(Poligono):
             coordenada_x, coordenada_y, cor, largura, comprimento, 4, nome_jogador
         )
 
-    # def adicionar_elemento_react(self, tela):
-    #     pygame.draw.rect(
-    #         tela,
-    #         self.cor,
-    #         (
-    #             self.coordenada_x + int(self.coordenada_x / 2),
-    #             self.coordenada_y + int(self.coordenada_y / 2),
-    #         ),
-    #     )
+    def fui_clicado(self, coordenas_do_clique: Tuple[int], tela, nome_jogador):
+        clicado = False
+        x = coordenas_do_clique[0]
+        y = coordenas_do_clique[1]
+        if (
+            self.nome_jogador == nome_jogador
+            and (self.coordenada_x <= x <= self.coordenada_x + self.largura)
+            and (self.coordenada_y <= y <= self.coordenada_y + self.comprimento)
+        ):
+            clicado = True
+            self.numero_de_pecas = 0
+            self.desenhar_elemento(tela)
+
+        return clicado
 
 
 class Kallah(Poligono):
@@ -188,6 +193,22 @@ class TelaDoJogo:
             50, 100, COR_CASAS_ADVERSARIO, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH
         )
         self.desenhar_elementos_na_tela()
+
+    def clicou_em_alguma_casa(self, coordenas_do_clique: Tuple[int]):
+        resultado = False
+        for elemento in self.elementos_da_tela:
+            if isinstance(elemento, Casa):
+                elemento_clicado = elemento.fui_clicado(
+                    coordenas_do_clique, self.tela, self.nome_jogador
+                )
+                if elemento_clicado:
+                    # elemento.desenhar_elemento(self.tela)
+                    # indice = self.elementos_da_tela.index(elemento)
+                    # self.elementos_da_tela[indice] = elemento
+                    resultado = True
+                    break
+
+        return resultado
 
     @staticmethod
     def mostrar_tela_do_jogador():
