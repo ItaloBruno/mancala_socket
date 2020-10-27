@@ -3,7 +3,7 @@
 """
 
 import pygame
-from typing import Tuple
+from typing import Tuple, List
 from constantes import (
     LARGURA_TELA,
     COMPRIMENTO_TELA,
@@ -189,27 +189,45 @@ class TelaDoJogo:
             casa_ou_kallah_jogador_2 = self.nome_jogador
 
         self.desenhar_minhas_casas_do_tabuleiro(
-            coordenada_x_inicial=150, coordenada_y_inicial=200, cor=COR_MINHAS_CASAS, nome_jogador=casa_ou_kallah_jogador_1
+            coordenada_x_inicial=150,
+            coordenada_y_inicial=200,
+            cor=COR_MINHAS_CASAS,
+            nome_jogador=casa_ou_kallah_jogador_1,
         )
         # desenhando minha kallah
         self.desenhar_kallah(
-            750, 100, COR_MINHAS_CASAS, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH,
-            casa_ou_kallah_jogador_1
+            750,
+            100,
+            COR_MINHAS_CASAS,
+            TAMANHO_LADO_CASA,
+            COMPRIMENTO_KALLAH,
+            casa_ou_kallah_jogador_1,
         )
         # desenhando casas do adversário
         self.desenhar_casas_do_tabuleiro_adversario(
-            coordenada_x_inicial=650, coordenada_y_inicial=100, cor=COR_CASAS_ADVERSARIO, nome_jogador=casa_ou_kallah_jogador_2
+            coordenada_x_inicial=650,
+            coordenada_y_inicial=100,
+            cor=COR_CASAS_ADVERSARIO,
+            nome_jogador=casa_ou_kallah_jogador_2,
         )
         # desenhando kallah do oponente
         self.desenhar_kallah(
-            50, 100, COR_CASAS_ADVERSARIO, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH, casa_ou_kallah_jogador_2
+            50,
+            100,
+            COR_CASAS_ADVERSARIO,
+            TAMANHO_LADO_CASA,
+            COMPRIMENTO_KALLAH,
+            casa_ou_kallah_jogador_2,
         )
         self.desenhar_elementos_na_tela()
 
     def clicou_em_alguma_casa(self, coordenas_do_clique: Tuple[int]):
         resultado = False
         for elemento in self.elementos_da_tela:
-            if isinstance(elemento, Casa) and elemento.nome_jogador == self.nome_jogador:
+            if (
+                isinstance(elemento, Casa)
+                and elemento.nome_jogador == self.nome_jogador
+            ):
                 elemento_clicado = elemento.fui_clicado(
                     coordenas_do_clique, self.tela, self.nome_jogador
                 )
@@ -220,6 +238,13 @@ class TelaDoJogo:
                     break
 
         return resultado
+
+    def pegar_os_valores_das_casas_e_kallah(self) -> List[int]:
+        valores = []
+        for elemento in self.elementos_da_tela:
+            valores.append(elemento.numero_de_pecas)
+
+        return valores
 
     @staticmethod
     def mostrar_tela_do_jogador():

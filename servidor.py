@@ -74,13 +74,22 @@ class Servidor:
                         )
                     )
                     conteudo_msg = ""
-                    if not self.primeiro_jogador_se_conectou and quantidade_conexoes == 1:
+                    if (
+                        not self.primeiro_jogador_se_conectou
+                        and quantidade_conexoes == 1
+                    ):
                         conteudo_msg = "Sim"
                         self.primeiro_jogador_se_conectou = True
                         print("o primeiro jogador conectou!")
 
-                    mensagem_nova_conexao = Mensagem(tipo="conexao_estabelecida", conteudo=conteudo_msg, remetente="servidor")
-                    mensagem_nova_conexao = mensagem_nova_conexao.converter_msg_em_bytes_para_enviar()
+                    mensagem_nova_conexao = Mensagem(
+                        tipo="conexao_estabelecida",
+                        conteudo=conteudo_msg,
+                        remetente="servidor",
+                    )
+                    mensagem_nova_conexao = (
+                        mensagem_nova_conexao.converter_msg_em_bytes_para_enviar()
+                    )
                     novo_cliente.send(mensagem_nova_conexao)
                     print("mensagem enviada para a nova conexão")
                 else:

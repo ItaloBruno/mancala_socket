@@ -1,5 +1,5 @@
 import json
-from typing import List
+from typing import List, Any
 from constantes import CODIFICACAO
 from excecoes import TipoMensagemInvalida
 from enum import Enum, unique
@@ -19,9 +19,9 @@ class TipoPermitidosDeMensagem(Enum):
 
 
 class Mensagem:
-    def __init__(self, tipo: str, conteudo: str, remetente: str):
+    def __init__(self, tipo: str, conteudo: Any, remetente: str):
         self._eh_um_tipo_valido(tipo_mensagem=tipo)
-        self._conteudo: str = conteudo
+        self._conteudo: Any = conteudo
         self._tipo: str = tipo
         self._remetente: str = remetente
 
