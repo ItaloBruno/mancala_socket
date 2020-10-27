@@ -132,9 +132,11 @@ while mostrar_tela_jogo:
     if event.type == pygame.MOUSEBUTTONDOWN:
         if pygame.mouse.get_pressed()[0]:
             resultado = tela_do_jogador.clicou_em_alguma_casa(pygame.mouse.get_pos())
-            print(f"resultado: {resultado}, coordenadas: {pygame.mouse.get_pos()}")
-            tela_do_jogador.desenhar_elementos_na_tela()
-            tela_do_jogador.mostrar_tela_do_jogador()
+            if resultado:
+                print(f"resultado: {resultado}, coordenadas: {pygame.mouse.get_pos()}")
+                tela_do_jogador.desenhar_elementos_na_tela()
+                tela_do_jogador.mostrar_tela_do_jogador()
+                continue
     try:
         tela_do_jogador.desenhar_elementos_na_tela()
         tela_do_jogador.mostrar_tela_do_jogador()

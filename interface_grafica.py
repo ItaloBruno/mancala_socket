@@ -34,7 +34,10 @@ class Texto(ElementoTela):
         self.valor_texto = valor_texto
         super().__init__(coordenada_x, coordenada_y, cor)
 
-    def desenhar_elemento(self, tela):
+    def atualizar_valor_texto(self, novo_texto: str) -> None:
+        self.valor_texto = novo_texto
+
+    def desenhar_elemento(self, tela) -> None:
         texto = self.fonte.render(self.valor_texto, True, VERMELHO)
         tela.blit(texto, [self.coordenada_x, self.coordenada_y])
 
@@ -63,6 +66,7 @@ class Poligono(ElementoTela):
         super().__init__(coordenada_x, coordenada_y, cor)
 
     def desenhar_quantidade_pecas(self, tela):
+        self.fonte_texto.atualizar_valor_texto(str(self.numero_de_pecas))
         self.fonte_texto.desenhar_elemento(tela)
 
     def desenhar_elemento(self, tela):
@@ -211,8 +215,7 @@ class TelaDoJogo:
                 )
                 if elemento_clicado:
                     # elemento.desenhar_elemento(self.tela)
-                    # indice = self.elementos_da_tela.index(elemento)
-                    # self.elementos_da_tela[indice] = elemento
+                    # self.mostrar_tela_do_jogador()
                     resultado = True
                     break
 
