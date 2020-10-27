@@ -121,9 +121,10 @@ class Kallah(Poligono):
 
 
 class TelaDoJogo:
-    def __init__(self, nome_jogador: str):
+    def __init__(self, nome_jogador: str, cliente_eh_primeiro_jogador: bool):
         self.nome_mostrado_no_display = f"Mancala - {nome_jogador}"
         self.nome_jogador = nome_jogador
+        self.sou_primeiro_jogador = cliente_eh_primeiro_jogador
         self.elementos_da_tela = []
         self.tela = None
 
@@ -141,7 +142,7 @@ class TelaDoJogo:
         self.elementos_da_tela.append(elemento)
 
     def desenhar_casas_do_tabuleiro_adversario(
-        self, coordenada_x_inicial, coordenada_y_inicial, cor
+        self, coordenada_x_inicial, coordenada_y_inicial, cor, nome_jogador
     ):
         while coordenada_x_inicial >= 150:
             casa = Casa(
@@ -150,13 +151,13 @@ class TelaDoJogo:
                 cor,
                 TAMANHO_LADO_CASA,
                 TAMANHO_LADO_CASA,
-                "",
+                nome_jogador,
             )
             self.adicionar_elemento_na_tela(casa)
             coordenada_x_inicial -= 100
 
     def desenhar_minhas_casas_do_tabuleiro(
-        self, coordenada_x_inicial, coordenada_y_inicial, cor
+        self, coordenada_x_inicial, coordenada_y_inicial, cor, nome_jogador: str
     ):
         while coordenada_x_inicial < 750:
             casa = Casa(
@@ -165,39 +166,46 @@ class TelaDoJogo:
                 cor,
                 TAMANHO_LADO_CASA,
                 TAMANHO_LADO_CASA,
-                self.nome_jogador,
+                nome_jogador,
             )
             self.adicionar_elemento_na_tela(casa)
             coordenada_x_inicial += 100
 
-    def desenhar_kallah(self, x, y, cor, largura, comprimento):
+    def desenhar_kallah(self, x, y, cor, largura, comprimento, nome_jogador):
         kallah = Kallah(x, y, cor, largura, comprimento)
         self.adicionar_elemento_na_tela(kallah)
 
     def desenhar_tabuleiro(self):
         # Fiz nessa ordem para que eu tenha todos os elementos na ordem anti-horária
         # desenhando minhas casas
+        casa_ou_kallah_jogador_1 = self.nome_jogador
+        casa_ou_kallah_jogador_2 = ""
+        if not self.sou_primeiro_jogador:
+            casa_ou_kallah_jogador_1 = ""
+            casa_ou_kallah_jogador_2 = self.nome_jogador
+
         self.desenhar_minhas_casas_do_tabuleiro(
-            coordenada_x_inicial=150, coordenada_y_inicial=200, cor=COR_MINHAS_CASAS
+            coordenada_x_inicial=150, coordenada_y_inicial=200, cor=COR_MINHAS_CASAS, nome_jogador=casa_ou_kallah_jogador_1
         )
         # desenhando minha kallah
         self.desenhar_kallah(
-            750, 100, COR_MINHAS_CASAS, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH
+            750, 100, COR_MINHAS_CASAS, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH,
+            casa_ou_kallah_jogador_1
         )
         # desenhando casas do adversário
         self.desenhar_casas_do_tabuleiro_adversario(
-            coordenada_x_inicial=650, coordenada_y_inicial=100, cor=COR_CASAS_ADVERSARIO
+            coordenada_x_inicial=650, coordenada_y_inicial=100, cor=COR_CASAS_ADVERSARIO, nome_jogador=casa_ou_kallah_jogador_2
         )
         # desenhando kallah do oponente
         self.desenhar_kallah(
-            50, 100, COR_CASAS_ADVERSARIO, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH
+            50, 100, COR_CASAS_ADVERSARIO, TAMANHO_LADO_CASA, COMPRIMENTO_KALLAH, casa_ou_kallah_jogador_2
         )
         self.desenhar_elementos_na_tela()
 
     def clicou_em_alguma_casa(self, coordenas_do_clique: Tuple[int]):
         resultado = False
         for elemento in self.elementos_da_tela:
-            if isinstance(elemento, Casa):
+            if isinstance(elemento, Casa) and elemento.nome_jogador == self.nome_jogador:
                 elemento_clicado = elemento.fui_clicado(
                     coordenas_do_clique, self.tela, self.nome_jogador
                 )

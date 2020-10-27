@@ -21,6 +21,7 @@ class Cliente:
         self.porta = porta
         self.endereco_ip = endereco_ip
         self.conexao = None
+        self.sou_primeiro_jogador = False
 
     def iniciar_conexao_com_servidor(self):
         self.conexao = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -75,9 +76,15 @@ class Cliente:
                     json_em_bytes=mensagem_recebida_do_servidor
                 )
 
-                if mensagem.tipo == TipoPermitidosDeMensagem.desistencia:
+                if mensagem.tipo == TipoPermitidosDeMensagem.desistencia.value:
                     print("Eu venci a partida, ieeeeeeei")
                     self.encerrar_conexao_servidor()
+                elif mensagem.tipo == TipoPermitidosDeMensagem.conexao_estabelecida.value:
+                    if mensagem.conteudo:
+                        print("sou o primeiro jogador")
+                        self.sou_primeiro_jogador = True
+                    else:
+                        print("sou o segundo jogador")
                 else:
                     print(
                         f"\n{mensagem.remetente} > {mensagem.conteudo}\n{self.nome} > ",
@@ -112,7 +119,7 @@ thread_envio_de_mensagens_ao_servidor = Thread(
 )
 thread_envio_de_mensagens_ao_servidor.start()
 
-tela_do_jogador = TelaDoJogo(meu_nome_usuario)
+tela_do_jogador = TelaDoJogo(meu_nome_usuario, cliente.sou_primeiro_jogador)
 tela_do_jogador.iniciar_tela_do_jogador()
 tela_do_jogador.desenhar_tabuleiro()
 
@@ -124,9 +131,7 @@ while mostrar_tela_jogo:
 
     if event.type == pygame.MOUSEBUTTONDOWN:
         if pygame.mouse.get_pressed()[0]:
-            resultado = tela_do_jogador.clicou_em_alguma_casa(
-                pygame.mouse.get_pos()
-            )
+            resultado = tela_do_jogador.clicou_em_alguma_casa(pygame.mouse.get_pos())
             print(f"resultado: {resultado}, coordenadas: {pygame.mouse.get_pos()}")
             tela_do_jogador.desenhar_elementos_na_tela()
             tela_do_jogador.mostrar_tela_do_jogador()

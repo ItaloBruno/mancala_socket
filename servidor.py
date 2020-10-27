@@ -4,6 +4,7 @@ import json
 from select import select
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 from constantes import TAMANHO_MAX_MSG, CODIFICACAO
+from mensagem import Mensagem
 
 
 if len(sys.argv) != 3:
@@ -21,6 +22,7 @@ class Servidor:
         self.lista_conexoes = []
         self.clientes_conectados = {}
         self.socket_servidor = None
+        self.primeiro_jogador_se_conectou = False
 
     def iniciar_conexao(self):
         print("Iniciando o servidor...")
@@ -62,6 +64,7 @@ class Servidor:
                     if mensagem is None:
                         continue
 
+                    quantidade_conexoes = len(self.lista_conexoes)
                     self.lista_conexoes.append(novo_cliente)
                     self.clientes_conectados[novo_cliente] = novo_cliente
 
@@ -70,7 +73,16 @@ class Servidor:
                             *infos_conexao, mensagem.get("remetente")
                         )
                     )
+                    conteudo_msg = ""
+                    if not self.primeiro_jogador_se_conectou and quantidade_conexoes == 1:
+                        conteudo_msg = "Sim"
+                        self.primeiro_jogador_se_conectou = True
+                        print("o primeiro jogador conectou!")
 
+                    mensagem_nova_conexao = Mensagem(tipo="conexao_estabelecida", conteudo=conteudo_msg, remetente="servidor")
+                    mensagem_nova_conexao = mensagem_nova_conexao.converter_msg_em_bytes_para_enviar()
+                    novo_cliente.send(mensagem_nova_conexao)
+                    print("mensagem enviada para a nova conexão")
                 else:
                     mensagem_recebida = self.receber_mensagem_cliente(conexao)
                     if mensagem_recebida is None:

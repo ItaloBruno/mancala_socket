@@ -11,6 +11,7 @@ class TipoPermitidosDeMensagem(Enum):
     desistencia = "desistencia"
     chat = "chat"
     vencedor = "vencedor"
+    conexao_estabelecida = "conexao_estabelecida"
 
     @staticmethod
     def list():
@@ -19,7 +20,7 @@ class TipoPermitidosDeMensagem(Enum):
 
 class Mensagem:
     def __init__(self, tipo: str, conteudo: str, remetente: str):
-        self._tipos_permitidos: List[str] = TipoPermitidosDeMensagem.list()
+        self._eh_um_tipo_valido(tipo_mensagem=tipo)
         self._conteudo: str = conteudo
         self._tipo: str = tipo
         self._remetente: str = remetente
@@ -48,15 +49,15 @@ class Mensagem:
         self._conteudo = novo_valor
 
     def _eh_um_tipo_valido(self, tipo_mensagem: str):
-        if tipo_mensagem in self._tipos_permitidos:
+        if tipo_mensagem in TipoPermitidosDeMensagem.list():
             return True
 
         raise TipoMensagemInvalida(
-            f"Esse tipo de mensagem é inválida. Tipos permitidos: {self._tipos_permitidos}"
+            f"Esse tipo de mensagem é inválida. Tipos permitidos: {TipoPermitidosDeMensagem.list()}"
         )
 
     def converter_bytes_para_json_e_setar_valores_da_classe(self, json_em_bytes: bytes):
-        json_em_texto = json_em_bytes.decode(CODIFICACAO)
+        json_em_texto = json_em_bytes.decode(CODIFICACAO).replace("'", '"')
         resultado = json.loads(json_em_texto)
 
         self._eh_um_tipo_valido(resultado.get("tipo"))
@@ -64,10 +65,10 @@ class Mensagem:
         self._tipo = resultado.get("tipo")
         self._remetente = resultado.get("remetente")
 
-    def converter_msg_em_bytes_para_enviar(self):
+    def converter_msg_em_bytes_para_enviar(self) -> bytes:
         msg = {
             "tipo": self._tipo,
             "conteudo": self._conteudo,
             "remetente": self.remetente,
         }
-        return str(msg).encode(CODIFICACAO)
+        return json.dumps(msg).encode(CODIFICACAO)
