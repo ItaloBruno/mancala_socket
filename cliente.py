@@ -170,6 +170,7 @@ if __name__ == "__main__":
                     #     remetente=meu_nome_usuario,
                     # )
 
+                    tela_do_jogador.verficar_se_alguem_ganhou()
                     tela_do_jogador.desenhar_elementos_na_tela()
                     tela_do_jogador.mostrar_tela_do_jogador()
 

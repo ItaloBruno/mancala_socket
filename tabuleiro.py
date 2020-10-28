@@ -129,7 +129,8 @@ class TelaDoJogo:
         self.sou_primeiro_jogador = cliente_eh_primeiro_jogador
         self.elementos_da_tela = []
         self.tela = None
-        self.indice_minha_kallah = 7
+        self.indice_minha_kallah = 6
+        self.indice_kallah_adversario = 13
 
     def iniciar_tela_do_jogador(self):
         pygame.init()
@@ -185,6 +186,8 @@ class TelaDoJogo:
         casa_ou_kallah_jogador_2 = ""
         if not self.sou_primeiro_jogador:
             casa_ou_kallah_jogador_1 = ""
+            self.indice_kallah_adversario = 6
+
             casa_ou_kallah_jogador_2 = self.nome_jogador
             self.indice_minha_kallah = 13
 
@@ -227,7 +230,13 @@ class TelaDoJogo:
         minha_casa = self.elementos_da_tela[indice_da_minha_casa]
         coordenada_y = 100 if self.sou_primeiro_jogador else 200
         coordenada_x = minha_casa.coordenada_x
-        casa_adversario = list(filter(lambda x: x.coordenada_x == coordenada_x and x.coordenada_y == coordenada_y, self.elementos_da_tela))[0]
+        casa_adversario = list(
+            filter(
+                lambda x: x.coordenada_x == coordenada_x
+                and x.coordenada_y == coordenada_y,
+                self.elementos_da_tela,
+            )
+        )[0]
         numero_de_pecas_adversario = casa_adversario.numero_de_pecas
         casa_adversario.numero_de_pecas = 0
         return numero_de_pecas_adversario
@@ -261,6 +270,13 @@ class TelaDoJogo:
             if not (
                 isinstance(casa, Kallah) and casa.nome_jogador != self.nome_jogador
             ):
+                if (
+                    numero_de_pecas_a_mover == 1
+                    and isinstance(casa, Kallah)
+                    and casa.nome_jogador == self.nome_jogador
+                ):
+                    # todo pensar em alguma maneira melhor de indicar isso ao jogador
+                    print("VOCÊ TEM DIREITO A MAIS UMA JOGADA!!!!!!!!")
                 casa.numero_de_pecas += 1
                 numero_de_pecas_a_mover -= 1
                 self.elementos_da_tela[indice] = casa
@@ -289,6 +305,7 @@ class TelaDoJogo:
                         indice_do_elemento_que_foi_clicado=indice,
                     )
                     resultado = True
+                    # self.verficar_se_alguem_ganhou()
                     break
 
         return resultado
@@ -299,6 +316,70 @@ class TelaDoJogo:
             valores.append(elemento.numero_de_pecas)
 
         return valores
+
+    def verificar_se_nao_tem_mais_pecas_em_suas_casas(self, lista_de_casas) -> bool:
+        resultado = all(casa.numero_de_pecas == 0 for casa in lista_de_casas)
+        return resultado
+
+    def verficar_se_alguem_ganhou(self):
+        # Condição para que o jogo acabe:
+        # - todas as casas de um dos jogadores não deve ter mais peças
+        # - se ainda tiver peças nas casas do adversario,
+        #   elas são automaticamente movidas para a kallah do adversário
+        minhas_casas = list(
+            filter(
+                lambda x: x.nome_jogador == self.nome_jogador and isinstance(x, Casa), self.elementos_da_tela
+            )
+        )
+        casas_adversario = list(
+            filter(
+                lambda x: x.nome_jogador != self.nome_jogador and isinstance(x, Casa), self.elementos_da_tela
+            )
+        )
+        minha_kallah = self.elementos_da_tela[self.indice_minha_kallah]
+        kallah_adversario = self.elementos_da_tela[self.indice_kallah_adversario]
+
+        sem_pecas_minhas_casas = self.verificar_se_nao_tem_mais_pecas_em_suas_casas(
+            minhas_casas
+        )
+        sem_pecas_casas_adversario = self.verificar_se_nao_tem_mais_pecas_em_suas_casas(
+            casas_adversario
+        )
+
+        if sem_pecas_minhas_casas or sem_pecas_casas_adversario:
+            print("ACABOU A PARTIDA, PESSOAAAAAAAAL!")
+            print("definindo vencedor....")
+            pecas_a_serem_movidas_pra_kallah = 0
+            if sem_pecas_minhas_casas:
+                for casa in minhas_casas:
+                    indice = self.elementos_da_tela.index(casa)
+                    pecas_a_serem_movidas_pra_kallah += casa.numero_de_pecas
+                    casa.numero_de_pecas = 0
+                    self.elementos_da_tela[indice] = casa
+                indice = self.elementos_da_tela.index(minha_kallah)
+                minha_kallah.numero_de_pecas += pecas_a_serem_movidas_pra_kallah
+                self.elementos_da_tela[indice] = minha_kallah
+
+            else:
+                for casa in casas_adversario:
+                    pecas_a_serem_movidas_pra_kallah += casa.numero_de_pecas
+                    casa.numero_de_pecas = 0
+                    indice = self.elementos_da_tela.index(casa)
+                    self.elementos_da_tela[indice] = casa
+                indice = self.elementos_da_tela.index(kallah_adversario)
+                kallah_adversario.numero_de_pecas += pecas_a_serem_movidas_pra_kallah
+                self.elementos_da_tela[indice] = kallah_adversario
+
+            eu_venci = minha_kallah.numero_de_pecas > kallah_adversario.numero_de_pecas
+            vencedor = "O jogador {} venceu a partida".format(1 if eu_venci else 2)
+            print(vencedor)
+            texto_vencedor = Texto(
+                300,
+                350,
+                VERMELHO,
+                vencedor,
+            )
+            texto_vencedor.desenhar_elemento(self.tela)
 
     @staticmethod
     def mostrar_tela_do_jogador():
