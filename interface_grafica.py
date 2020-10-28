@@ -103,8 +103,6 @@ class Casa(Poligono):
             and (self.coordenada_y <= y <= self.coordenada_y + self.comprimento)
         ):
             clicado = True
-            self.numero_de_pecas = 0
-            self.desenhar_elemento(tela)
 
         return clicado
 
@@ -176,7 +174,7 @@ class TelaDoJogo:
             coordenada_x_inicial += 100
 
     def desenhar_kallah(self, x, y, cor, largura, comprimento, nome_jogador):
-        kallah = Kallah(x, y, cor, largura, comprimento)
+        kallah = Kallah(x, y, cor, largura, comprimento, nome_jogador)
         self.adicionar_elemento_na_tela(kallah)
 
     def desenhar_tabuleiro(self):
@@ -221,7 +219,24 @@ class TelaDoJogo:
         )
         self.desenhar_elementos_na_tela()
 
-    def clicou_em_alguma_casa(self, coordenas_do_clique: Tuple[int]):
+    def movimentar_pecas_no_tabuleiro(
+        self, numero_de_pecas_a_mover: int, indice_do_elemento_que_foi_clicado: int
+    ):
+        indice = indice_do_elemento_que_foi_clicado + 1
+        while numero_de_pecas_a_mover:
+            if indice == 14:
+                indice = 0
+            casa = self.elementos_da_tela[indice]
+            if not (
+                isinstance(casa, Kallah) and casa.nome_jogador != self.nome_jogador
+            ):
+                casa.numero_de_pecas += 1
+                numero_de_pecas_a_mover -= 1
+                self.elementos_da_tela[indice] = casa
+
+            indice = indice + 1
+
+    def clicou_em_alguma_das_minhas_casa(self, coordenas_do_clique: Tuple[int]):
         resultado = False
         for elemento in self.elementos_da_tela:
             if (
@@ -232,8 +247,16 @@ class TelaDoJogo:
                     coordenas_do_clique, self.tela, self.nome_jogador
                 )
                 if elemento_clicado:
+                    numero_de_pecas_a_mover = elemento.numero_de_pecas
+                    elemento.numero_de_pecas = 0
+                    # self.desenhar_elemento(tela)
+                    indice = self.elementos_da_tela.index(elemento)
                     # elemento.desenhar_elemento(self.tela)
                     # self.mostrar_tela_do_jogador()
+                    self.movimentar_pecas_no_tabuleiro(
+                        numero_de_pecas_a_mover=numero_de_pecas_a_mover,
+                        indice_do_elemento_que_foi_clicado=indice,
+                    )
                     resultado = True
                     break
 

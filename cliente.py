@@ -148,7 +148,7 @@ if __name__ == "__main__":
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if pygame.mouse.get_pressed()[0]:
-                resultado = tela_do_jogador.clicou_em_alguma_casa(
+                resultado = tela_do_jogador.clicou_em_alguma_das_minhas_casa(
                     pygame.mouse.get_pos()
                 )
                 if resultado:
@@ -164,11 +164,11 @@ if __name__ == "__main__":
                     )
                     print(f"valores das casas: {novos_valores_pecas_tabuleiro}")
 
-                    mensagem_movimentacao = Mensagem(
-                        tipo=TipoPermitidosDeMensagem.movimentacao.value,
-                        conteudo=novos_valores_pecas_tabuleiro,
-                        remetente=meu_nome_usuario,
-                    )
+                    # mensagem_movimentacao = Mensagem(
+                    #     tipo=TipoPermitidosDeMensagem.movimentacao.value,
+                    #     conteudo=novos_valores_pecas_tabuleiro,
+                    #     remetente=meu_nome_usuario,
+                    # )
 
                     tela_do_jogador.desenhar_elementos_na_tela()
                     tela_do_jogador.mostrar_tela_do_jogador()
