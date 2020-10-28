@@ -328,12 +328,14 @@ class TelaDoJogo:
         #   elas são automaticamente movidas para a kallah do adversário
         minhas_casas = list(
             filter(
-                lambda x: x.nome_jogador == self.nome_jogador and isinstance(x, Casa), self.elementos_da_tela
+                lambda x: x.nome_jogador == self.nome_jogador and isinstance(x, Casa),
+                self.elementos_da_tela,
             )
         )
         casas_adversario = list(
             filter(
-                lambda x: x.nome_jogador != self.nome_jogador and isinstance(x, Casa), self.elementos_da_tela
+                lambda x: x.nome_jogador != self.nome_jogador and isinstance(x, Casa),
+                self.elementos_da_tela,
             )
         )
         minha_kallah = self.elementos_da_tela[self.indice_minha_kallah]
@@ -351,27 +353,34 @@ class TelaDoJogo:
             print("definindo vencedor....")
             pecas_a_serem_movidas_pra_kallah = 0
             if sem_pecas_minhas_casas:
-                for casa in minhas_casas:
-                    indice = self.elementos_da_tela.index(casa)
-                    pecas_a_serem_movidas_pra_kallah += casa.numero_de_pecas
-                    casa.numero_de_pecas = 0
-                    self.elementos_da_tela[indice] = casa
-                indice = self.elementos_da_tela.index(minha_kallah)
-                minha_kallah.numero_de_pecas += pecas_a_serem_movidas_pra_kallah
-                self.elementos_da_tela[indice] = minha_kallah
-
-            else:
                 for casa in casas_adversario:
+                    indice = self.elementos_da_tela.index(casa)
                     pecas_a_serem_movidas_pra_kallah += casa.numero_de_pecas
                     casa.numero_de_pecas = 0
-                    indice = self.elementos_da_tela.index(casa)
                     self.elementos_da_tela[indice] = casa
+
                 indice = self.elementos_da_tela.index(kallah_adversario)
                 kallah_adversario.numero_de_pecas += pecas_a_serem_movidas_pra_kallah
                 self.elementos_da_tela[indice] = kallah_adversario
 
-            eu_venci = minha_kallah.numero_de_pecas > kallah_adversario.numero_de_pecas
-            vencedor = "O jogador {} venceu a partida".format(1 if eu_venci else 2)
+            else:
+                for casa in minhas_casas:
+                    pecas_a_serem_movidas_pra_kallah += casa.numero_de_pecas
+                    casa.numero_de_pecas = 0
+                    indice = self.elementos_da_tela.index(casa)
+                    self.elementos_da_tela[indice] = casa
+
+                indice = self.elementos_da_tela.index(minha_kallah)
+                minha_kallah.numero_de_pecas += pecas_a_serem_movidas_pra_kallah
+                self.elementos_da_tela[indice] = minha_kallah
+
+            kallah_do_vencer = (
+                1
+                if self.elementos_da_tela[6].numero_de_pecas > self.elementos_da_tela[13].numero_de_pecas
+                else 2
+            )
+
+            vencedor = f"O jogador {kallah_do_vencer} venceu a partida"
             print(vencedor)
             texto_vencedor = Texto(
                 300,
