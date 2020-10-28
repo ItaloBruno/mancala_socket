@@ -129,6 +129,7 @@ class TelaDoJogo:
         self.sou_primeiro_jogador = cliente_eh_primeiro_jogador
         self.elementos_da_tela = []
         self.tela = None
+        self.indice_minha_kallah = 7
 
     def iniciar_tela_do_jogador(self):
         pygame.init()
@@ -185,6 +186,7 @@ class TelaDoJogo:
         if not self.sou_primeiro_jogador:
             casa_ou_kallah_jogador_1 = ""
             casa_ou_kallah_jogador_2 = self.nome_jogador
+            self.indice_minha_kallah = 13
 
         self.desenhar_minhas_casas_do_tabuleiro(
             coordenada_x_inicial=150,
@@ -219,10 +221,39 @@ class TelaDoJogo:
         )
         self.desenhar_elementos_na_tela()
 
+    def pegar_as_pecas_da_casa_adversaria_e_zerar_seu_valor(
+        self, indice_da_minha_casa: int
+    ) -> int:
+        minha_casa = self.elementos_da_tela[indice_da_minha_casa]
+        coordenada_y = 100 if self.sou_primeiro_jogador else 200
+        coordenada_x = minha_casa.coordenada_x
+        casa_adversario = list(filter(lambda x: x.coordenada_x == coordenada_x and x.coordenada_y == coordenada_y, self.elementos_da_tela))[0]
+        numero_de_pecas_adversario = casa_adversario.numero_de_pecas
+        casa_adversario.numero_de_pecas = 0
+        return numero_de_pecas_adversario
+
+    def comer_pecas_do_adversario_e_mover_para_minha_kallah(
+        self, indice_da_minha_casa: int
+    ):
+        minha_kallah: Kallah = self.elementos_da_tela[self.indice_minha_kallah]
+        numero_pecas_para_adicionar_em_minha_kallah = (
+            self.pegar_as_pecas_da_casa_adversaria_e_zerar_seu_valor(
+                indice_da_minha_casa
+            )
+        )
+        numero_pecas_para_adicionar_em_minha_kallah += 1
+        minha_kallah.numero_de_pecas += numero_pecas_para_adicionar_em_minha_kallah
+
     def movimentar_pecas_no_tabuleiro(
         self, numero_de_pecas_a_mover: int, indice_do_elemento_que_foi_clicado: int
     ):
         indice = indice_do_elemento_que_foi_clicado + 1
+        if numero_de_pecas_a_mover == 1:
+            self.comer_pecas_do_adversario_e_mover_para_minha_kallah(
+                indice_do_elemento_que_foi_clicado
+            )
+            numero_de_pecas_a_mover = 0
+
         while numero_de_pecas_a_mover:
             if indice == 14:
                 indice = 0

@@ -4,7 +4,7 @@ import sys
 from threading import Thread
 from constantes import TAMANHO_MAX_MSG
 from mensagem import Mensagem, TipoPermitidosDeMensagem
-from interface_grafica import TelaDoJogo
+from tabuleiro import TelaDoJogo
 import pygame
 from typing import Optional
 
