@@ -376,7 +376,8 @@ class TelaDoJogo:
 
             kallah_do_vencer = (
                 1
-                if self.elementos_da_tela[6].numero_de_pecas > self.elementos_da_tela[13].numero_de_pecas
+                if self.elementos_da_tela[6].numero_de_pecas
+                > self.elementos_da_tela[13].numero_de_pecas
                 else 2
             )
 

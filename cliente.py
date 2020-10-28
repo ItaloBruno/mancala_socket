@@ -159,10 +159,10 @@ if __name__ == "__main__":
                     novos_valores_pecas_tabuleiro = (
                         tela_do_jogador.pegar_os_valores_das_casas_e_kallah()
                     )
-                    print(
-                        f"resultado: {resultado}, coordenadas: {pygame.mouse.get_pos()}"
-                    )
-                    print(f"valores das casas: {novos_valores_pecas_tabuleiro}")
+                    # print(
+                    #     f"resultado: {resultado}, coordenadas: {pygame.mouse.get_pos()}"
+                    # )
+                    # print(f"valores das casas: {novos_valores_pecas_tabuleiro}")
 
                     # mensagem_movimentacao = Mensagem(
                     #     tipo=TipoPermitidosDeMensagem.movimentacao.value,
