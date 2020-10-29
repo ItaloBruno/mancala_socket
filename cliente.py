@@ -94,7 +94,9 @@ class Cliente:
                     else:
                         print("sou o segundo jogador")
                 elif mensagem.tipo == TipoPermitidosDeMensagem.movimentacao.value:
-                    tela_do_jogador.sincronizacao_de_valor_de_pecas_do_meu_tabuleiro_com_o_outro_jogador(mensagem.conteudo)
+                    tela_do_jogador.sincronizacao_de_valor_de_pecas_do_meu_tabuleiro_com_o_outro_jogador(
+                        mensagem.conteudo
+                    )
                 else:
                     print(
                         f"\n{mensagem.remetente} > {mensagem.conteudo}\n{self.nome} > ",

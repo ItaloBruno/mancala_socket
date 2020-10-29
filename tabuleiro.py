@@ -231,7 +231,7 @@ class TelaDoJogo:
         casa_adversario = list(
             filter(
                 lambda x: x.coordenada_x == coordenada_x
-                          and x.coordenada_y == coordenada_y,
+                and x.coordenada_y == coordenada_y,
                 self.elementos_da_tela,
             )
         )[0]
@@ -274,7 +274,12 @@ class TelaDoJogo:
         self, numero_de_pecas_a_mover: int, indice_do_elemento_que_foi_clicado: int
     ):
         indice = indice_do_elemento_que_foi_clicado + 1
-        if numero_de_pecas_a_mover == 1 and self.verificar_se_a_casa_da_frente_tem_pecas(indice_do_elemento_que_foi_clicado):
+        if (
+            numero_de_pecas_a_mover == 1
+            and self.verificar_se_a_casa_da_frente_tem_pecas(
+                indice_do_elemento_que_foi_clicado
+            )
+        ):
             self.comer_pecas_do_adversario_e_mover_para_minha_kallah(
                 indice_do_elemento_que_foi_clicado
             )
@@ -410,9 +415,14 @@ class TelaDoJogo:
             return True
         else:
             return False
-    def sincronizacao_de_valor_de_pecas_do_meu_tabuleiro_com_o_outro_jogador(self, lista_de_novos_valores):
+
+    def sincronizacao_de_valor_de_pecas_do_meu_tabuleiro_com_o_outro_jogador(
+        self, lista_de_novos_valores
+    ):
         for indice in range(14):
-            self.elementos_da_tela[indice].numero_de_pecas = lista_de_novos_valores[indice]
+            self.elementos_da_tela[indice].numero_de_pecas = lista_de_novos_valores[
+                indice
+            ]
 
     @staticmethod
     def mostrar_tela_do_jogador():
