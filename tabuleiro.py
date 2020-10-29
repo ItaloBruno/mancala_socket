@@ -224,6 +224,23 @@ class TelaDoJogo:
         )
         self.desenhar_elementos_na_tela()
 
+    def verificar_se_a_casa_da_frente_tem_pecas(self, indice_da_minha_casa):
+        minha_casa = self.elementos_da_tela[indice_da_minha_casa]
+        coordenada_y = 100 if self.sou_primeiro_jogador else 200
+        coordenada_x = minha_casa.coordenada_x
+        casa_adversario = list(
+            filter(
+                lambda x: x.coordenada_x == coordenada_x
+                          and x.coordenada_y == coordenada_y,
+                self.elementos_da_tela,
+            )
+        )[0]
+        resultado = False
+        if casa_adversario.numero_de_pecas:
+            resultado = True
+
+        return resultado
+
     def pegar_as_pecas_da_casa_adversaria_e_zerar_seu_valor(
         self, indice_da_minha_casa: int
     ) -> int:
@@ -257,7 +274,7 @@ class TelaDoJogo:
         self, numero_de_pecas_a_mover: int, indice_do_elemento_que_foi_clicado: int
     ):
         indice = indice_do_elemento_que_foi_clicado + 1
-        if numero_de_pecas_a_mover == 1:
+        if numero_de_pecas_a_mover == 1 and self.verificar_se_a_casa_da_frente_tem_pecas(indice_do_elemento_que_foi_clicado):
             self.comer_pecas_do_adversario_e_mover_para_minha_kallah(
                 indice_do_elemento_que_foi_clicado
             )
@@ -321,7 +338,7 @@ class TelaDoJogo:
         resultado = all(casa.numero_de_pecas == 0 for casa in lista_de_casas)
         return resultado
 
-    def verficar_se_alguem_ganhou(self):
+    def verficar_se_alguem_ganhou(self) -> bool:
         # Condição para que o jogo acabe:
         # - todas as casas de um dos jogadores não deve ter mais peças
         # - se ainda tiver peças nas casas do adversario,
@@ -390,12 +407,12 @@ class TelaDoJogo:
                 vencedor,
             )
             texto_vencedor.desenhar_elemento(self.tela)
-
+            return True
+        else:
+            return False
     def sincronizacao_de_valor_de_pecas_do_meu_tabuleiro_com_o_outro_jogador(self, lista_de_novos_valores):
-        print("sincronizando...")
         for indice in range(14):
             self.elementos_da_tela[indice].numero_de_pecas = lista_de_novos_valores[indice]
-        print("sincronização concluída!")
 
     @staticmethod
     def mostrar_tela_do_jogador():

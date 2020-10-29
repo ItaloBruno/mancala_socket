@@ -7,7 +7,6 @@ from threading import Thread
 from constantes import TAMANHO_MAX_MSG
 from mensagem import Mensagem, TipoPermitidosDeMensagem
 from tabuleiro import TelaDoJogo
-from typing import Optional
 
 
 if len(sys.argv) != 3:
@@ -95,10 +94,6 @@ class Cliente:
                     else:
                         print("sou o segundo jogador")
                 elif mensagem.tipo == TipoPermitidosDeMensagem.movimentacao.value:
-                    # TODO pensar em alguma maneira para que os estados de todos as casas/kallah
-                    #  sejam repassadas de um cliente para outro e seja feita a atualização do tabuleiro
-                    print("recebi uma movimentação")
-                    print(mensagem.conteudo)
                     tela_do_jogador.sincronizacao_de_valor_de_pecas_do_meu_tabuleiro_com_o_outro_jogador(mensagem.conteudo)
                 else:
                     print(
@@ -152,19 +147,11 @@ if __name__ == "__main__":
                 resultado = tela_do_jogador.clicou_em_alguma_das_minhas_casa(
                     pygame.mouse.get_pos()
                 )
-                time.sleep(1)
+                time.sleep(0.5)
                 if resultado:
-                    # TODO se a casa for clicada, enviar essas informações em alguma estrutura de dados para
-                    #  que o outro cliente receba essas mesmas informações e possa atualizar a sua tela
-                    #  uma ideia seria repassar uma lista com os valores de cada casa/kallah, já que eu tenho uma ordem
-                    #  pré estabelecida das peças do tabuleiro
                     novos_valores_pecas_tabuleiro = (
                         tela_do_jogador.pegar_os_valores_das_casas_e_kallah()
                     )
-                    # print(
-                    #     f"resultado: {resultado}, coordenadas: {pygame.mouse.get_pos()}"
-                    # )
-                    # print(f"valores das casas: {novos_valores_pecas_tabuleiro}")
 
                     mensagem_movimentacao = Mensagem(
                         tipo=TipoPermitidosDeMensagem.movimentacao.value,
@@ -173,14 +160,12 @@ if __name__ == "__main__":
                     )
 
                     cliente.enviar_movimentacao_ao_servidor(mensagem_movimentacao)
-
-                    tela_do_jogador.desenhar_elementos_na_tela()
-                    tela_do_jogador.mostrar_tela_do_jogador()
-                    tela_do_jogador.verficar_se_alguem_ganhou()
-
                     resultado = False
                     continue
         try:
+            terminou = tela_do_jogador.verficar_se_alguem_ganhou()
+            if terminou:
+                mostrar_tela_jogo = False
             tela_do_jogador.desenhar_elementos_na_tela()
             tela_do_jogador.mostrar_tela_do_jogador()
         except KeyboardInterrupt:
