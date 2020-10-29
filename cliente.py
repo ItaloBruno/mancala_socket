@@ -1,11 +1,12 @@
+import pygame
 import socket
 import errno
+import time
 import sys
 from threading import Thread
 from constantes import TAMANHO_MAX_MSG
 from mensagem import Mensagem, TipoPermitidosDeMensagem
 from tabuleiro import TelaDoJogo
-import pygame
 from typing import Optional
 
 
@@ -36,17 +37,13 @@ class Cliente:
         mensagem_em_bytes = mensagem_inicial.converter_msg_em_bytes_para_enviar()
         self.conexao.send(mensagem_em_bytes)
 
-    def enviar_mensagem_para_o_servidor(self, mensagem: Optional[Mensagem] = None):
+    def enviar_mensagem_para_o_servidor(self):
         while True:
             mensagem_para_enviar = ""
-            if not mensagem:
-                try:
-                    mensagem_para_enviar = input(f"{self.nome} > ")
-                except KeyboardInterrupt:
-                    self.encerrar_conexao_servidor()
-            else:
-                mensagem_em_bytes = mensagem.converter_msg_em_bytes_para_enviar()
-                self.conexao.send(mensagem_em_bytes)
+            try:
+                mensagem_para_enviar = input(f"{self.nome} > ")
+            except KeyboardInterrupt:
+                self.encerrar_conexao_servidor()
 
             if mensagem_para_enviar:
                 if mensagem_para_enviar in ["sair do jogo", "desconectar"]:
@@ -67,6 +64,10 @@ class Cliente:
                     )
                     mensagem_em_bytes = mensagem.converter_msg_em_bytes_para_enviar()
                     self.conexao.send(mensagem_em_bytes)
+
+    def enviar_movimentacao_ao_servidor(self, mensagem):
+        mensagem_em_bytes = mensagem.converter_msg_em_bytes_para_enviar()
+        self.conexao.send(mensagem_em_bytes)
 
     def receber_mensagens_do_servidor(self):
         while True:
@@ -98,7 +99,7 @@ class Cliente:
                     #  sejam repassadas de um cliente para outro e seja feita a atualização do tabuleiro
                     print("recebi uma movimentação")
                     print(mensagem.conteudo)
-                    pass
+                    tela_do_jogador.sincronizacao_de_valor_de_pecas_do_meu_tabuleiro_com_o_outro_jogador(mensagem.conteudo)
                 else:
                     print(
                         f"\n{mensagem.remetente} > {mensagem.conteudo}\n{self.nome} > ",
@@ -151,6 +152,7 @@ if __name__ == "__main__":
                 resultado = tela_do_jogador.clicou_em_alguma_das_minhas_casa(
                     pygame.mouse.get_pos()
                 )
+                time.sleep(1)
                 if resultado:
                     # TODO se a casa for clicada, enviar essas informações em alguma estrutura de dados para
                     #  que o outro cliente receba essas mesmas informações e possa atualizar a sua tela
@@ -164,15 +166,17 @@ if __name__ == "__main__":
                     # )
                     # print(f"valores das casas: {novos_valores_pecas_tabuleiro}")
 
-                    # mensagem_movimentacao = Mensagem(
-                    #     tipo=TipoPermitidosDeMensagem.movimentacao.value,
-                    #     conteudo=novos_valores_pecas_tabuleiro,
-                    #     remetente=meu_nome_usuario,
-                    # )
+                    mensagem_movimentacao = Mensagem(
+                        tipo=TipoPermitidosDeMensagem.movimentacao.value,
+                        conteudo=novos_valores_pecas_tabuleiro,
+                        remetente=meu_nome_usuario,
+                    )
 
-                    tela_do_jogador.verficar_se_alguem_ganhou()
+                    cliente.enviar_movimentacao_ao_servidor(mensagem_movimentacao)
+
                     tela_do_jogador.desenhar_elementos_na_tela()
                     tela_do_jogador.mostrar_tela_do_jogador()
+                    tela_do_jogador.verficar_se_alguem_ganhou()
 
                     resultado = False
                     continue

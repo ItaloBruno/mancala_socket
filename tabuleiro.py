@@ -391,6 +391,12 @@ class TelaDoJogo:
             )
             texto_vencedor.desenhar_elemento(self.tela)
 
+    def sincronizacao_de_valor_de_pecas_do_meu_tabuleiro_com_o_outro_jogador(self, lista_de_novos_valores):
+        print("sincronizando...")
+        for indice in range(14):
+            self.elementos_da_tela[indice].numero_de_pecas = lista_de_novos_valores[indice]
+        print("sincronização concluída!")
+
     @staticmethod
     def mostrar_tela_do_jogador():
         pygame.display.flip()
